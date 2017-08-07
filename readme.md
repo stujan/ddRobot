@@ -1,12 +1,18 @@
+##钉钉机器人后台管理工具
+> 环境要求，PHP  + MYSQL
+
+可通过网页在线对钉钉机器人进行管理，功能类似crontab，`匹配的模式===周期`注意用crontab的语法！！！
+
 - 初始化
+  > 一开始使用需要先配置初始化环境，建立数据库和表
+  执行 php    /DataBase/DataBase.php  建库和表
 
-  执行 php    /DataBase/DataBase.php  建库和表
-
-- 执行后台调度程序
+- 初始化完成后，执行后台调度程序，模拟了crontab的功能，对pattern字段进行解析
 
   执行php   /src/cronTab.php
 
 
+- 以下是提供的一些API
 
 | File               | method | 作用         |
 | ------------------ | ------ | ---------- |
