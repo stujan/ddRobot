@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Flamingo Admin</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+  <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.9.0/loading-bar.min.css'>
+<link rel='stylesheet prefetch' href='https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css'>
+
+      <link rel="stylesheet" href="../Style/css/style.css">
+
+  
+</head>
+
+<body>
+  <div id="ctrl" class="b-tracker-admin container-fluid" ng-app="trackerApp" ng-cloak>
+  <ng-controller ng-controller="trackerAdminCtrl" >
+    <!-- Table -->
+    <div class="row b-tracker-admin__row">
+      <div class="col-md-12">
+        <div class="pull-left">
+          <h3>DingDing Robot Management System</h3>
+        </div>
+        <div class="pull-right">
+          <div class="form-inline">
+            <md-button class="md-raised md-primary" data-toggle="modal" data-target="#create-modal">
+              <i class="glyphicon glyphicon-plus"></i> Add Robot
+            </md-button>
+             <!-- Create modal -->
+            <div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-labelledby="create-modal-Label">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="create-modal-Label">Add Robot</h4>
+                  </div>
+                  <div class="modal-body">
+                    <form class="form" name="createTrackingForm">
+                        <md-input-container class="md-block">
+                            <label>Url</label>
+                            <textarea ng-model="newTrack.url" rows="2" md-select-on-focus></textarea>
+                        </md-input-container>
+                      <div layout="row">
+<!--                         <md-input-container class="md-block">
+                          <label>Url</label>
+                          <input required minlength="10" ng-model="newTrack.url">
+                          <textarea ng-model="newTrack.url" rows="2" md-select-on-focus></textarea>
+                        </md-input-container>
+ -->
+                        <md-input-container class="md-block" flex-gt-sm flex="33">
+                          <label>Name</label>
+                          <input ng-model="newTrack.name" required>
+                        </md-input-container>
+                        <md-input-container class="md-block" flex-gt-sm flex="33">
+                          <label>Type</label>
+                          <input ng-model="newTrack.type" required>
+                        </md-input-container>
+                        <md-input-container class="md-block" flex-gt-sm flex="33">
+                          <label>Belong</label>
+                          <input ng-model="newTrack.belong" required>
+                        </md-input-container>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Quit</button>
+                    <md-button class="md-raised md-primary" ng-click="addTrack()" ng-disabled="createTrackingForm.$invalid" data-dismiss="modal">
+                      <i class="glyphicon glyphicon-plus"></i> Add
+                    </md-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <table ng-if="trackList.length > 0" class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th ng-click="changeOrderby('url')" style="width:140px">
+                Robot URL<i ng-show="isOrderByIconShow('url')" ng-class="orderByClass"></i>
+              </th>
+              <th ng-click="changeOrderby('addDate')">
+                ADD TIME<i ng-show="isOrderByIconShow('addDate')" ng-class="orderByClass"></i>
+              </th>
+              <th ng-click="changeOrderby('name')" style="width:130px">
+                NAME <i ng-show="isOrderByIconShow('name')" ng-class="orderByClass"></i>
+              </th>
+              <th ng-click="changeOrderby('type')">
+                Type<i ng-show="isOrderByIconShow('type')" ng-class="orderByClass"></i>
+              </th>
+              <th ng-click="changeOrderby('belong')">
+                Belong<i ng-show="isOrderByIconShow('belong')" ng-class="orderByClass"></i>
+              </th>
+              <th>operation</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="form-control" ng-model="searchUrl" /></td>
+              <td><input type="text" class="form-control" ng-model="searchAddDate" /></td>
+              <td><input type="text" class="form-control" ng-model="searchName" /></td>
+              <td><input type="text" class="form-control" ng-model="searchType" /></td>
+              <td><input type="text" class="form-control" ng-model="searchBelong" /></td>
+              <td></td>
+            </tr>
+            <tr ng-repeat-start="track in trackList | filter:searchUrl | filter:searchAddDate | filter:searchName | filter:searchType | filter:searchBelong | orderBy:orderByFilter">
+              <td style="word-break:break-all">
+                {{track.url}}
+              </td>
+              <td>
+                {{track.addDate}}
+              </td>
+              <td>
+                {{track.name}}
+              </td>
+              <td>
+                {{track.type}}
+              </td>
+              <td>
+                {{track.belong}}
+              </td>
+              <td style="width:120px">
+                <div class="btn-group">
+                  <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#tracking-edit-{{$index}}" ng-click="startEditTrack(track.id)">
+                    <i class="glyphicon glyphicon-pencil"></i>
+                  </button>
+                  <button data-toggle="collapse" data-target="#accordion-{{$index}}" class="btn btn-warning btn-sm">
+                    <i class=" glyphicon glyphicon-th-list"></i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" ng-click="deleteTrack(track.id)"><i class="glyphicon glyphicon-remove"></i></button>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="tracking-edit-{{$index}}" tabindex="-1" role="dialog" aria-labelledby="tracking-edit-{{$index}}Label">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="tracking-edit-{{$index}}Label">Modify</h4>
+                      </div>
+                      <div class="modal-body">
+                        <form class="form">
+                            <md-input-container class="md-block" flex-gt-sm flex="33">
+                              <label>Url</label>
+                              <textarea ng-model="editTrack.url" rows="2" md-select-on-focus></textarea>
+                            </md-input-container>
+
+                          <div layout="row">
+                            <md-input-container class="md-block" flex-gt-sm flex="33">
+                              <label>Name</label>
+                              <input required ng-model="editTrack.name">
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-sm flex="33">
+                              <label>Type</label>
+                              <input required ng-model="editTrack.type">
+                            </md-input-container>
+                            <md-input-container class="md-block" flex-gt-sm flex="33">
+                              <label>Belong</label>
+                              <input required ng-model="editTrack.belong">
+                            </md-input-container>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Quit</button>
+                        <button type="button" class="btn btn-success" ng-click="saveTrack(track.id)" data-dismiss="modal">Confirm</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr ng-repeat-end id="accordion-{{$index}}" class="collapse">
+                <td colspan="6">
+                  <!-- Status table -->
+                  <table class="table table-bordered table-striped">
+                    <tr ng-repeat="status in track.statuses">
+                      <td>
+                        {{status.addDate}}
+                      </td>
+                      <td style="word-break:break-all">
+                        {{status.message}}
+                      </td>
+                      <td>
+                        {{status.type}}
+                      </td>
+                      <td>
+                        {{status.pattern}}
+                      </td>
+                      
+                      <td style="width:70px;">
+                        <div class="btn-group">
+                          <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#status-edit-{{$parent.$index}}-{{$index}}" ng-click="startEditStatus(track.id, status.id)">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                          </button>
+                          <button class="btn btn-danger btn-xs" ng-click="deleteStatus(track.id, status.id)">
+                            <i class="glyphicon glyphicon-remove"></i>
+                          </button>
+                        </div>
+                        
+                        
+                        <!-- Modal -->
+                        <div class="modal fade" id="status-edit-{{$parent.$index}}-{{$index}}" tabindex="-1" role="dialog">
+                          <form class="form" name="edit-status-{{$parent.$index}}-{{$index}}">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                  <h4 class="modal-title">Modify Event</h4>
+                                </div>
+                                <div class="modal-body">
+                                  <form class="form" novalidate>
+                                    <md-input-container class="md-block">
+                                      <textarea ng-model="editStatus.message" rows="2" md-select-on-focus></textarea>
+                                    </md-input-container>
+                                  <md-input-container class="md-block" flex-gt-sm flex="33">
+                                     <label>type</label>
+                                    <input ng-model="editStatus.type" md-select-on-focus>
+                                  </md-input-container>
+                                    <md-input-container class="md-block">
+                                      <md-datepicker ng-model="editStatus.addDate" md-placeholder="Dаtа" required></md-datepicker>
+                                    </md-input-container>
+                                    <div layout ="row">
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>分钟</label>
+                                        <input required ng-model="editStatus.mm">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>小时</label>
+                                      <input required ng-model="editStatus.hh">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>天</label>
+                                        <input required ng-model="editStatus.dd">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>月</label>
+                                        <input required ng-model="editStatus.MM">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>周</label>
+                                        <input required ng-model="editStatus.weak">
+                                      </md-input-container>
+                                      <!-- <md-input-container class="md-block">
+                                          <label>pattern</label>
+                                          <md-select placeholder="Pick" ng-model="editStatus.pattern" require>
+                                            <md-option value="1"></md-option>
+                                            <md-option value="2"></md-option>
+                                          </md-select>
+                                      </md-input-container>
+ -->                                </div>
+                                  </form>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-default" data-dismiss="modal">Quit</button>
+                                  <button type="button" class="btn btn-success" ng-click="saveStatus(track.id, status.id)" data-dismiss="modal">confirm</button>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <div class="pull-right">
+                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#create-status-modal-track-{{$index}}"><i class="glyphicon glyphicon-plus"></i></button>
+                    
+                     <!-- Create status modal -->
+                      <div class="modal fade" id="create-status-modal-track-{{$index}}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                              <h4 class="modal-title">Add Event</h4>
+                            </div>
+                            <div class="modal-body">
+                              <form class="form" novalidate>
+                                  <md-input-container class="md-block">
+                                    <textarea ng-model="newStatus.message"  rows="2" md-select-on-focus></textarea>
+                                  </md-input-container >
+                                  <md-input-container class="md-block" flex-gt-sm flex="33">
+                                     <label>type</label>
+                                    <input ng-model="newStatus.type" md-select-on-focus>
+                                  </md-input-container>
+                                  <md-input-container class="md-block">
+                                    <md-datepicker ng-model="newStatus.addDate" md-placeholder="data" required></md-datepicker>
+                                  </md-input-container>
+
+                                  <div layout="row">
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>分钟</label>
+                                        <input required ng-model="newStatus.mm">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>小时</label>
+                                      <input required ng-model="newStatus.hh">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>天</label>
+                                        <input required ng-model="newStatus.dd">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>月</label>
+                                        <input required ng-model="newStatus.MM">
+                                      </md-input-container>
+                                      <md-input-container class="md-block" flex-gt-sm flex="33">
+                                        <label>周</label>
+                                        <input required ng-model="newStatus.weak">
+                                      </md-input-container>
+                                  </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Quit</button>
+                              <button type="button" class="btn btn-success" ng-click="addStatus(track.id)" data-dismiss="modal">Confirm</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="alert alert-warning" ng-if="trackList.length <= 0">暂无机器人</div>
+      </div>
+    </div>
+  </ng-controller>
+</div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js'></script>
+
+    <script src="../Style/js/index.js"></script>
+    <script src="../Style/js/test.js"></script>
+    
+</body>
+</html>
